@@ -1,6 +1,6 @@
 "use client";
 
-import { AssetCard, assetInfo } from "../../components/ui/asset-images";
+import { AssetCard } from "../../components/ui/asset-images";
 
 const resourceCategories = {
   "Mental Health Topics": ["anxiety", "depression", "stress", "mind"],
@@ -19,8 +19,9 @@ export default function ResourcesPage() {
             Mental Health Resources
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Explore our comprehensive collection of mental health topics and wellness practices
-            to support your journey toward better mental wellbeing.
+            Explore our comprehensive collection of mental health topics and
+            wellness practices to support your journey toward better mental
+            wellbeing.
           </p>
         </div>
 
@@ -51,7 +52,8 @@ export default function ResourcesPage() {
           <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-8 text-white">
             <h3 className="text-2xl font-bold mb-4">Need Immediate Support?</h3>
             <p className="text-lg mb-6">
-              If you're experiencing a mental health crisis, please reach out for help immediately.
+              If you&apos;re experiencing a mental health crisis, please reach
+              out for help immediately.
             </p>
             <div className="space-y-2">
               <p className="font-semibold">Crisis Hotlines:</p>

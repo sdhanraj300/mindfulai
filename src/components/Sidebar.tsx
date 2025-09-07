@@ -2,7 +2,15 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Home, MessageCircle, User, Info, LogOut, SidebarOpen, Sparkles, Brain, BookOpen } from "lucide-react";
+import {
+  Home,
+  MessageCircle,
+  User,
+  Info,
+  LogOut,
+  SidebarOpen,
+  BookOpen,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
