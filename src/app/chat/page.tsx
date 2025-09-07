@@ -30,7 +30,7 @@ const ChatPage: React.FC = () => {
   }
   
   if(status==="unauthenticated"){
-    signIn()
+    signIn(undefined, { callbackUrl: '/chat' })
     return null
   }
   

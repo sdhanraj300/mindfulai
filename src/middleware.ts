@@ -19,9 +19,9 @@ export async function middleware(request: NextRequest) {
       secret: process.env.AUTH_SECRET 
     })
     
-    // If no token, redirect to sign-in
+    // If no token, redirect to custom sign-in page
     if (!token) {
-      const signInUrl = new URL('/api/auth/signin', request.url)
+      const signInUrl = new URL('/sign-in', request.url)
       signInUrl.searchParams.set('callbackUrl', pathname)
       return NextResponse.redirect(signInUrl)
     }
