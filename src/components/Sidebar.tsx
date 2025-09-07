@@ -17,6 +17,7 @@ import Link from "next/link";
 import logo from '../../public/assets/logo.png';
 import peopleImage from '../../public/assets/people.png';
 import { ThemeToggle } from "./theme-toggle";
+import { signOut } from "next-auth/react";
 
 interface SidebarProps {
 	isOpen: boolean;
@@ -129,6 +130,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen, currentUser
 						{/* Sign Out Button */}
 						<Button 
 							variant="outline" 
+							onClick={() => signOut({ callbackUrl: '/' })}
 							className="w-full flex items-center gap-3 text-slate-600 dark:text-slate-300 hover:text-red-500 dark:hover:text-red-400 border-slate-200 dark:border-slate-600 hover:border-red-300 dark:hover:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300 group"
 						>
 							<LogOut className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
