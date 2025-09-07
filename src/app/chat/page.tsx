@@ -6,7 +6,7 @@ import ChatFooter from "@/components/chat/ChatFooter"
 import ChatHeader from "@/components/chat/ChatHeader"
 import ChatSection from "@/components/chat/ChatSection"
 import { Sidebar } from "@/components/Sidebar"
-import { useSession } from "next-auth/react"
+import { useSession, signIn } from "next-auth/react"
 import { Loader } from "@/components/ui/loader"
 import MentalHealthTips from "@/components/chat/MentalHealthTips"
 import peopleImage from "../../../public/assets/people.png"
@@ -30,7 +30,8 @@ const ChatPage: React.FC = () => {
   }
   
   if(status==="unauthenticated"){
-    window.location.href="/"
+    signIn()
+    return null
   }
   
   const currentUser = {

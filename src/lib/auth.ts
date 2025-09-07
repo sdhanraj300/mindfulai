@@ -49,9 +49,6 @@ export const authOptions: AuthOptions = {
     session: {
         strategy: 'jwt',
     },
-    pages: {
-        signIn: '/sign-in',
-    },
     callbacks: {
         async signIn({ account, profile }) {
             if (account?.provider === 'credentials') return true;
