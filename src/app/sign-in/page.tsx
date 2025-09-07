@@ -29,6 +29,7 @@ import { Chrome, Github, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { useSession } from 'next-auth/react';
+import { useUserStore } from '@/store/user';
 
 // 1. Define the Zod schema for the sign-in form. It's simpler than sign-up.
 const formSchema = z.object({
@@ -42,12 +43,18 @@ type SignInFormValues = z.infer<typeof formSchema>;
 export default function SignIn() {
     const router = useRouter();
     const { data: session, status } = useSession();
+    const setUser = useUserStore((state) => state.setUser);
 
     useEffect(() => {
         if (status === 'authenticated' && session?.user) {
+            setUser({
+                name: session.user.name,
+                avatar: session.user.image,
+                email: session.user.email,
+            });
             router.push('/chat');
         }
-    }, [router, session, status]);
+    }, [router, session, status, setUser]);
 
     // 2. Initialize react-hook-form
     const form = useForm<SignInFormValues>({
@@ -74,8 +81,17 @@ export default function SignIn() {
 
             return result;
         },
-        onSuccess: () => {
+        onSuccess: async () => {
             toast.success('Signed in successfully!');
+            // Get session after sign-in to update user store
+            const session = await (await import('next-auth/react')).getSession();
+            if (session?.user) {
+                setUser({
+                    name: session.user.name,
+                    avatar: session.user.image,
+                    email: session.user.email,
+                });
+            }
             router.push('/chat'); // Or any other protected route
             router.refresh(); // Refresh the page to update server component data
         },

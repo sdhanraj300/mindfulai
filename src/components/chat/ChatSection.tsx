@@ -22,9 +22,13 @@ interface ChatSectionProps {
   chatHistory: ChatMessage[];
   loading: boolean;
   handlePromptClick: (prompt: string) => void;
+  currentUser: {
+    name: string;
+    avatar: string;
+  };
 }
 
-const ChatSection = ({ chatHistory, loading, handlePromptClick }: ChatSectionProps) => {
+const ChatSection = ({ chatHistory, loading, handlePromptClick, currentUser }: ChatSectionProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   // We'll need a ref for the scroll area's viewport for the improved UX below
 
@@ -89,7 +93,7 @@ const ChatSection = ({ chatHistory, loading, handlePromptClick }: ChatSectionPro
                           <MessageAvatar
                             src={
                               msg.sender === "user"
-                                ? peopleImage.src
+                                ? currentUser.avatar
                                 : botImage.src
                             }
                             alt={msg.sender}
@@ -99,7 +103,7 @@ const ChatSection = ({ chatHistory, loading, handlePromptClick }: ChatSectionPro
                           <MessageContent
                             markdown={msg.sender === "bot"}
                             className={cn(
-                              "text-sm",
+                              "text-md",
                               msg.sender === "user"
                                 ? "bg-primary text-primary-foreground"
                                 : "bg-muted dark:text-gray-300 text-secondary-foreground",

@@ -124,6 +124,7 @@ const ChatPage: React.FC = () => {
             handlePromptClick={handlePromptClick}
             chatHistory={messages.map((m) => ({ sender: m.role === "user" ? "user" : "bot", message: m.content }))}
             loading={loading}
+            currentUser={currentUser}
           />
           <ChatFooter
             loading={loading}

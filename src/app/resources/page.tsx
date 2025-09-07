@@ -1,5 +1,7 @@
 "use client";
 
+import { Sidebar } from "@/components/Sidebar";
+import { useState } from "react";
 import { AssetCard } from "../../components/ui/asset-images";
 
 const resourceCategories = {
@@ -11,8 +13,10 @@ const resourceCategories = {
 } as const;
 
 export default function ResourcesPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
+    <div className="min-h-screen font-mono bg-gray-50 dark:bg-gray-900 py-12">
+      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
