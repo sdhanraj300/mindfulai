@@ -79,21 +79,10 @@ export default function Signup() {
             }
             return response.json();
         },
-        onSuccess: async (data) => {
+        onSuccess: () => {
             toast.success('Account created successfully!');
-            // After successful registration, sign the user in automatically
-            const signInResponse = await signIn('credentials', {
-                email: data.email,
-                password: data.password,
-                redirect: false, // Don't redirect, handle it manually
-            });
-
-            if (signInResponse?.ok) {
-                router.push('/chat'); // Redirect to chat on successful sign-in
-            } else {
-                // If auto-signin fails, redirect to the sign-in page
-                router.push('/sign-in');
-            }
+            // After successful registration, redirect to sign-in page
+            router.push('/sign-in?message=Account created successfully. Please sign in.');
         },
         onError: () => {
             toast.error('Error creating account');
