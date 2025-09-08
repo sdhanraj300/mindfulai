@@ -4,11 +4,9 @@ import { motion } from "framer-motion";
 import React from "react";
 
 export const BackgroundLines = ({
-  children,
   className,
   svgOptions,
 }: {
-  children: React.ReactNode;
   className?: string;
   svgOptions?: {
     duration?: number;
@@ -17,12 +15,11 @@ export const BackgroundLines = ({
   return (
     <div
       className={cn(
-        "h-[20rem] md:h-screen w-full bg-white dark:bg-black",
+        "w-full h-full",
         className
       )}
     >
       <SVG svgOptions={svgOptions} />
-      {children}
     </div>
   );
 };
@@ -98,7 +95,8 @@ const SVG = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
-      className="absolute inset-0 w-full h-full"
+      className="w-full h-full pointer-events-none"
+      style={{ zIndex: 1 }}
     >
       {paths.map((path, idx) => (
         <motion.path
