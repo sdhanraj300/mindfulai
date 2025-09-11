@@ -8,6 +8,7 @@ import { PromptTemplate } from "@langchain/core/prompts"
 import { StringOutputParser } from "@langchain/core/output_parsers"
 import type { Document } from "@langchain/core/documents"
 import { HumanMessage, AIMessage, type BaseMessage } from "@langchain/core/messages"
+import { HuggingFaceInferenceEmbeddings } from "@langchain/community/embeddings/hf"
 
 // --- Define types for clarity ---
 type IncomingChatMessage = {
@@ -38,7 +39,10 @@ export async function POST(req: Request) {
       configuration: { baseURL: "https://openrouter.ai/api/v1" },
     })
 
-    const embeddings = new GoogleGenerativeAIEmbeddings({ apiKey: process.env.GEMINI_API_KEY! })
+    const embeddings = new HuggingFaceInferenceEmbeddings({ apiKey: process.env.HF_TOKEN!,
+      model: "BAAI/bge-base-en-v1.5",
+      provider: "hf-inference",
+     })
     const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! })
     const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX!)
 
@@ -49,8 +53,6 @@ export async function POST(req: Request) {
       .map((msg) => (msg._getType() === "human" ? `User: ${msg.content}` : `Assistant: ${msg.content}`))
       .join("\n")
 
-
-
     // --- 3. Retrieve Context from Vector Store ---
     const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
       pineconeIndex,
@@ -60,8 +62,6 @@ export async function POST(req: Request) {
     const relevantDocs = await retriever.getRelevantDocuments(currentMessageContent)
     const context = relevantDocs.map((doc: Document) => doc.pageContent).join("\n\n")
 
-    console.log("Retrieved Context:", context);
-
     // --- 4. Define the Full Prompt Template ---
     const TEMPLATE = `
       You are an expert mental health AI assistant. Always follow an empathetic and supportive tone.
@@ -70,15 +70,14 @@ export async function POST(req: Request) {
       Guidelines for your response:
       1. Be specific and extract information directly from the context provided.
       2. Keep your response focused and to the point.
-      3. Try to answer in list with bullet points for better readability. We are already using markdown library to show the message so always use markdown syntax.
+      3. Format lists with bullet points for better      3. Try to answer in list with bullet points for better readability. We are already using markdown library to show the message so always use markdown syntax.
       4. Use empathetic language and validate the user's feelings.
-      5. Keep the response short and crisp and under 100 words unless explicitly asked for more detail.
-      6. If you don't know the answer, just say you don't know, don't try to make up an answer.
-      7. If the context provided is not relevant to mental health, politely inform the user that you can only assist with mental health related queries.
-
+      5ords unless explicitly asked for more detail.
+      5. If you don't know the answer, just say you don't6know, don't try to make up an answer.
+      6. If the context provided is not relevant to menta7 health, politely inform the user that you can only assist with mental health related queries.
+      
       ----------------
-      CONTEXT:
-      {context}
+      CONTEXT: {context}
       ----------------
       CHAT HISTORY:
       {chat_history}

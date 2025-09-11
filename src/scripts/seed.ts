@@ -3,16 +3,17 @@ import path from "path";
 import pdf from "pdf-parse";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { PineconeStore } from "@langchain/pinecone";
-import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { Document } from "@langchain/core/documents";
-
+import { HuggingFaceInferenceEmbeddings } from "@langchain/community/embeddings/hf";
 
 const pdfsDir = path.join(__dirname, "../pdfs");
-const pinecone = new Pinecone({apiKey : process.env.PINECONE_API_KEY!});
+const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
 const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX!);
-const embeddings = new GoogleGenerativeAIEmbeddings({
-    apiKey: process.env.GEMINI_API_KEY!,
+const embeddings = new HuggingFaceInferenceEmbeddings({
+  apiKey: process.env.HF_TOKEN,
+  model: "BAAI/bge-base-en-v1.5",
+  provider: "hf-inference",
 });
 async function main() {
   // List all PDF files in the pdfs directory
@@ -23,28 +24,29 @@ async function main() {
   }
 
   // Process, split, and upload each PDF one at a time
-  const splitter = new RecursiveCharacterTextSplitter({ chunkSize: 1000, chunkOverlap: 200 });
+  const splitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 1000,
+    chunkOverlap: 200,
+  });
   const pineconeStore = new PineconeStore(embeddings, {
     pineconeIndex,
     namespace: "pdf-namespace",
     textKey: "text",
   });
-
   for (const file of files) {
     try {
+      console.log(`Processing ${file}...`);
       // Read PDF file
       const pdfBuffer = fs.readFileSync(path.join(pdfsDir, file));
       const pdfData = await pdf(pdfBuffer);
-      
       // Create document object
       const document = new Document({
         pageContent: pdfData.text,
-        metadata: { 
+        metadata: {
           source: file,
-          totalPages: pdfData.numpages 
-        }
+          totalPages: pdfData.numpages,
+        },
       });
-      
       // Split and store
       const splitDocs = await splitter.splitDocuments([document]);
       await pineconeStore.addDocuments(splitDocs);
