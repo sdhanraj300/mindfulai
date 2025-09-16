@@ -2,27 +2,31 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  Home,
-  MessageCircle,
-  User,
-  Info,
-  LogOut,
-  SidebarOpen,
-  BookOpen,
+	Home,
+	MessageCircle,
+	User,
+	Info,
+	LogOut,
+	SidebarOpen,
+	BookOpen,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import logo from '../../public/assets/logo.png';
-import peopleImage from '../../public/assets/people.png';
 import { ThemeToggle } from "./theme-toggle";
 import { signOut } from "next-auth/react";
+import { ConversationsList } from "@/components/chat/ConversationsList";
 
 interface SidebarProps {
 	isOpen: boolean;
 	setIsOpen: (open: boolean) => void;
 	currentUser?: { name?: string; avatar?: string };
+	onSelectConversation?: (id: string) => void;
+	selectedConversationId?: string | null;
 }
 
 const navLinks = [
@@ -33,7 +37,8 @@ const navLinks = [
 	{ name: "About", icon: Info, href: "/about", description: "Learn more about us" },
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen, currentUser }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen, currentUser, onSelectConversation, selectedConversationId }) => {
+	const pathname = usePathname();
 	return (
 		<>
 			{/* Floating open button when sidebar is closed */}
@@ -57,9 +62,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen, currentUser
 			</AnimatePresence>
 
 			<Sheet open={isOpen} onOpenChange={setIsOpen}>
-				<SheetContent 
-					side="left" 
-					className="p-0 bg-gradient-to-br from-slate-50 font-mono to-blue-50 dark:from-slate-900 dark:to-slate-800 text-slate-800 dark:text-slate-100 w-80 flex flex-col h-full shadow-2xl border-r border-slate-200 dark:border-slate-700"
+				<SheetContent
+					side="left"
+					className="p-0 bg-gradient-to-br from-slate-50 font-mono to-blue-50 dark:from-slate-900 dark:to-slate-800 text-slate-800 dark:text-slate-100 w-80 flex flex-col h-full overflow-y-auto shadow-2xl border-r border-slate-200 dark:border-slate-700"
 				>
 					{/* Header */}
 					<SheetHeader className="p-6 border-b border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
@@ -69,12 +74,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen, currentUser
 							transition={{ duration: 0.5 }}
 							className="flex items-center gap-3"
 						>
-							<div className="relative">
+							<Link href="/" className="relative">
 								<div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full blur-sm opacity-75"></div>
 								<div className="relative rounded-full">
-								<Image src={logo} alt="Logo" width={70} height={70} className="rounded-full" />
+									<Image src={logo} alt="Logo" width={70} height={70} className="rounded-full" />
 								</div>
-							</div>
+							</Link>
 							<div>
 								<SheetTitle className="text-2xl text-transparent">
 									MindfulAI
@@ -86,35 +91,58 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen, currentUser
 
 					{/* Navigation */}
 					<nav className="flex-1 flex flex-col gap-2 p-6">
-						{navLinks.map((link, index) => (
-							<motion.div
-								key={link.name}
-								initial={{ opacity: 0, x: -20 }}
-								animate={{ opacity: 1, x: 0 }}
-								transition={{ duration: 0.3, delay: index * 0.1 }}
-							>
-								<Link
-									href={link.href}
-									className={cn(
-										"group flex items-center gap-4 px-4 py-3 rounded-xl font-medium transition-all duration-300",
-										"hover:bg-sidebar-accent dark:hover:bg-slate-700/80 hover:shadow-md",
-										"border border-transparent hover:border-purple-200 dark:hover:border-purple-700",
-										"text-foreground dark:text-slate-200 hover:text-purple-600 dark:hover:text-foreground"
-									)}
+						{/* Conversations section first on chat page */}
+						{onSelectConversation && (
+							<div>
+								<div className="text-xs uppercase tracking-wide text-muted-foreground px-1 mb-2">Your Conversations</div>
+								<ConversationsList
+									selectedId={selectedConversationId}
+									onSelect={(c) => {
+										onSelectConversation?.(c.id);
+										setIsOpen(false);
+									}}
+								/>
+								<div className="h-4" />
+								<div className="text-xs uppercase tracking-wide text-muted-foreground px-1 mb-2">Navigation</div>
+							</div>
+						)}
+
+						{(onSelectConversation
+							? navLinks.filter((l) => !["Chat", "About", "Resources"].includes(l.name))
+							: navLinks
+						).map((link, index) => {
+							const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
+							return (
+								<motion.div
+									key={link.name}
+									initial={{ opacity: 0, x: -20 }}
+									animate={{ opacity: 1, x: 0 }}
+									transition={{ duration: 0.3, delay: index * 0.1 }}
 								>
-									<div className="relative">
-										<div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-										<link.icon className="w-5 h-5 relative z-10 group-hover:scale-110 transition-transform duration-300" />
-									</div>
-									<div className="flex-1">
-										<div className="font-semibold">{link.name}</div>
-										<div className="text-xs text-slate-500 dark:text-slate-400 group-hover:text-foreground dark:group-hover:text-purple-400 transition-colors">
-											{link.description}
+									<Link
+										href={link.href}
+										aria-current={isActive ? "page" : undefined}
+										className={cn(
+											"group flex items-center gap-4 px-4 py-3 rounded-xl font-medium transition-all duration-300 border",
+											isActive
+												? "bg-sidebar-accent dark:bg-slate-700/80 shadow-md border-purple-300 dark:border-purple-600 text-purple-700 dark:text-foreground"
+												: "border-transparent hover:bg-sidebar-accent dark:hover:bg-slate-700/80 hover:shadow-md hover:border-purple-200 dark:hover:border-purple-700 text-foreground dark:text-slate-200 hover:text-purple-600 dark:hover:text-foreground"
+										)}
+									>
+										<div className="relative">
+											<div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+											<link.icon className={cn("w-5 h-5 relative z-10 transition-transform duration-300", isActive ? "scale-110" : "group-hover:scale-110")} />
 										</div>
-									</div>
-								</Link>
-							</motion.div>
-						))}
+										<div className="flex-1">
+											<div className={cn("font-semibold", isActive && "text-purple-700 dark:text-foreground")}>{link.name}</div>
+											<div className={cn("text-xs text-slate-500 dark:text-slate-400 transition-colors", isActive ? "text-foreground dark:text-purple-400" : "group-hover:text-foreground dark:group-hover:text-purple-400")}>
+												{link.description}
+											</div>
+										</div>
+									</Link>
+								</motion.div>
+							);
+						})}
 					</nav>
 
 					{/* Footer */}
@@ -124,22 +152,42 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen, currentUser
 						transition={{ duration: 0.5, delay: 0.8 }}
 						className="p-6 border-t border-slate-200 dark:border-slate-700 bg-white/30 dark:bg-slate-800/30 backdrop-blur-sm space-y-3"
 					>
+						{/* User Profile Section */}
+						{currentUser && (
+							<div className="flex items-center gap-3 p-3 rounded-lg bg-white/50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600">
+								<Avatar className="size-10">
+									<AvatarImage src={currentUser.avatar} alt={currentUser.name || "User"} />
+									<AvatarFallback className="text-sm">
+										{currentUser.name?.[0]?.toUpperCase() || "U"}
+									</AvatarFallback>
+								</Avatar>
+								<div className="flex-1 min-w-0">
+									<p className="text-sm font-medium text-foreground truncate">
+										{currentUser.name || "User"}
+									</p>
+									<p className="text-xs text-muted-foreground">
+										Your Profile
+									</p>
+								</div>
+							</div>
+						)}
+
 						{/* Theme Toggle */}
 						<ThemeToggle />
-						
+
 						{/* Sign Out Button */}
-						<Button 
-							variant="outline" 
+						<Button
+							variant="outline"
 							onClick={() => signOut({ callbackUrl: '/' })}
 							className="w-full flex items-center gap-3 text-slate-600 dark:text-slate-300 hover:text-red-500 dark:hover:text-red-400 border-slate-200 dark:border-slate-600 hover:border-red-300 dark:hover:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300 group"
 						>
 							<LogOut className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
 							<span className="font-medium">Sign Out</span>
 						</Button>
-						
+
 						<div className="mt-4 text-center">
 							<p className="text-xs text-slate-400 dark:text-slate-500">
-								Version 1.0.0 • Made with ❤️
+								Version 1.0.0 • Made with ❤️ by Dhanraj
 							</p>
 						</div>
 					</motion.div>

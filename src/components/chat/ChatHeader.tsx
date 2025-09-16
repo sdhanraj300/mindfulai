@@ -2,15 +2,16 @@ import React from 'react'
 import { CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Avatar, AvatarFallback } from '@radix-ui/react-avatar'
 import { Button } from '../ui/button'
-import { Menu } from 'lucide-react'
+import { Menu, Plus } from 'lucide-react'
 import Image from 'next/image'
 import logo from '../../../public/assets/logo.png'
 
 interface ChatHeaderProps {
   onMenuClick?: () => void;
+  onNewChat?: () => void;
 }
 
-const ChatHeader: React.FC<ChatHeaderProps> = ({ onMenuClick }) => {
+const ChatHeader: React.FC<ChatHeaderProps> = ({ onMenuClick, onNewChat }) => {
   return (
     <CardHeader className="border-b">
       <div className="flex items-center justify-between">
@@ -28,19 +29,25 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ onMenuClick }) => {
             <CardDescription>Your safe space to talk. Currently online.</CardDescription>
           </div>
         </div>
-        
-        {/* Menu button for mobile/alternative access */}
-        {onMenuClick && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onMenuClick}
-            className="md:hidden"
-            aria-label="Open menu"
-          >
-            <Menu className="w-5 h-5" />
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {onNewChat && (
+            <Button variant="outline" size="sm" onClick={onNewChat}>
+              <Plus className="w-4 h-4 mr-1" /> New Chat
+            </Button>
+          )}
+          {/* Menu button for mobile/alternative access */}
+          {onMenuClick && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onMenuClick}
+              className="md:hidden"
+              aria-label="Open menu"
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
+          )}
+        </div>
       </div>
     </CardHeader>
   )

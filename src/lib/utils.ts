@@ -1,10 +1,11 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
+import type { IncomingChatMessage } from "@/types/chat";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
-
 
 /**
  * Constructs a full, absolute URL for an API endpoint.
@@ -15,8 +16,14 @@ export function cn(...inputs: ClassValue[]) {
 
 export function getApiUrl(path: string): string {
   // Ensure the path starts with a slash
-  const sanitizedPath = path.startsWith('/') ? path : `/${path}`;
+  const sanitizedPath = path.startsWith("/") ? path : `/${path}`;
 
   // Use NEXT_PUBLIC_URL from your environment variables
   return `${process.env.NEXT_PUBLIC_URL}${sanitizedPath}`;
 }
+
+export const formatMessage = (message: IncomingChatMessage): BaseMessage => {
+  return message.role === "user"
+    ? new HumanMessage(message.content)
+    : new AIMessage(message.content);
+};
